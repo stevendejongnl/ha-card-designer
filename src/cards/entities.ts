@@ -1,5 +1,6 @@
 import type { CardSchema } from "../core/schema";
 import { textSelector, themeSelector } from "../core/selectors";
+import { entityRowList } from "../core/widgets";
 
 export const entitiesCard: CardSchema = {
   id: "entities",
@@ -14,8 +15,9 @@ export const entitiesCard: CardSchema = {
     entities: [],
     show_header_toggle: false,
   },
-  yamlOrder: ["title", "icon", "entities", "show_header_toggle"],
+  yamlOrder: ["entities", "title", "icon", "show_header_toggle"],
   form: () => [
+    entityRowList(),
     textSelector("title", "Title"),
     themeSelector(),
     {

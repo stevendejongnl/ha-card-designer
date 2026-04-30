@@ -33,7 +33,30 @@ export interface HaFormSection {
   columns?: number;
 }
 
-export type FormSchema = HaFormSchema | HaFormSection;
+export interface HcdSubFormList {
+  type: "hcd-sub-form-list";
+  name: string;
+  title?: string;
+  addLabel?: string;
+  itemSchema: HaFormSchema[];
+  itemDefaults?: Record<string, unknown>;
+  itemLabel?: (row: Record<string, unknown>, i: number) => string;
+  reorderable?: boolean;
+}
+
+export interface HcdCardList {
+  type: "hcd-card-list";
+  name: string;
+  title?: string;
+  addLabel?: string;
+  allowChildType?: (childType: string, parentType: string) => boolean;
+  reorderable?: boolean;
+}
+
+export type FormSchema = HaFormSchema | HaFormSection | HcdSubFormList | HcdCardList;
+
+export const isHaFormField = (s: FormSchema): s is HaFormSchema | HaFormSection =>
+  !("type" in s) || s.type === "expandable" || s.type === "grid";
 
 export interface CardSchema {
   id: string;

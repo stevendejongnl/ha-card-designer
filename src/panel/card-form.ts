@@ -1,7 +1,31 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import type { CardSchema } from "../core/schema";
+import type { CardSchema, FormSchema, HaFormSchema, HaFormSection, HcdSubFormList, HcdCardList } from "../core/schema";
+import { isHaFormField } from "../core/schema";
 import type { HomeAssistant } from "custom-card-helpers";
+import "./sub-form-list";
+import "./cards-list-widget";
+
+type Block =
+  | { kind: "ha"; schema: (HaFormSchema | HaFormSection)[] }
+  | { kind: "custom"; node: HcdSubFormList | HcdCardList };
+
+function partition(schema: FormSchema[]): Block[] {
+  const blocks: Block[] = [];
+  for (const node of schema) {
+    if (isHaFormField(node)) {
+      const last = blocks[blocks.length - 1];
+      if (last?.kind === "ha") {
+        last.schema.push(node);
+      } else {
+        blocks.push({ kind: "ha", schema: [node] });
+      }
+    } else {
+      blocks.push({ kind: "custom", node: node as HcdSubFormList | HcdCardList });
+    }
+  }
+  return blocks;
+}
 
 @customElement("hcd-card-form")
 export class HcdCardForm extends LitElement {
@@ -10,7 +34,7 @@ export class HcdCardForm extends LitElement {
   @property({ attribute: false }) data: Record<string, unknown> = {};
 
   private _handleValueChanged(e: CustomEvent) {
-    this.data = e.detail.value;
+    this.data = { ...this.data, ...e.detail.value };
     this.dispatchEvent(
       new CustomEvent("config-changed", {
         detail: { ...this.data, type: this.schema?.type },
@@ -75,13 +99,29 @@ export class HcdCardForm extends LitElement {
         <p>${this.schema.description}</p>
       </div>
       <div class="form-wrapper">
-        <ha-form
-          .hass=${this.hass}
-          .data=${this.data}
-          .schema=${formSchema}
-          .computeLabel=${(s: { label?: string; name: string }) => s.label ?? s.name}
-          @value-changed=${this._handleValueChanged}
-        ></ha-form>
+        ${partition(formSchema).map(block =>
+          block.kind === "ha"
+            ? html`<ha-form
+                .hass=${this.hass}
+                .data=${this.data}
+                .schema=${block.schema}
+                .computeLabel=${(s: { label?: string; name: string }) => s.label ?? s.name}
+                @value-changed=${this._handleValueChanged}
+              ></ha-form>`
+            : block.node.type === "hcd-sub-form-list"
+              ? html`<hcd-sub-form-list
+                  .hass=${this.hass}
+                  .node=${block.node as HcdSubFormList}
+                  .value=${(this.data[block.node.name] as Record<string, unknown>[] | undefined) ?? []}
+                  @value-changed=${this._handleValueChanged}
+                ></hcd-sub-form-list>`
+              : html`<hcd-cards-list-widget
+                  .hass=${this.hass}
+                  .node=${block.node as HcdCardList}
+                  .value=${(this.data[block.node.name] as Record<string, unknown>[] | undefined) ?? []}
+                  @value-changed=${this._handleValueChanged}
+                ></hcd-cards-list-widget>`
+        )}
       </div>
     `;
   }

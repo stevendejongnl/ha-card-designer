@@ -40,3 +40,7 @@ export const ALL_CARDS: CardSchema[] = [
 export function getCardSchema(id: string): CardSchema | undefined {
   return ALL_CARDS.find((c) => c.id === id);
 }
+
+export function getCardSchemaByType(type: string): CardSchema | undefined {
+  return ALL_CARDS.find((c) => c.type === type);
+}

@@ -1,4 +1,5 @@
 import type { CardSchema } from "../core/schema";
+import { stackChildrenList } from "../core/widgets";
 
 export const stackVerticalCard: CardSchema = {
   id: "stack-vertical",
@@ -10,5 +11,5 @@ export const stackVerticalCard: CardSchema = {
   installed: () => !!customElements.get("hui-vertical-stack-card"),
   defaults: { type: "vertical-stack", cards: [] },
   yamlOrder: ["cards"],
-  form: () => [],
+  form: () => [stackChildrenList()],
 };

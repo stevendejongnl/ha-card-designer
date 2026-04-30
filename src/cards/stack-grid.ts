@@ -1,5 +1,6 @@
 import type { CardSchema } from "../core/schema";
 import { numberSelector } from "../core/selectors";
+import { stackChildrenList } from "../core/widgets";
 
 export const stackGridCard: CardSchema = {
   id: "stack-grid",
@@ -19,5 +20,6 @@ export const stackGridCard: CardSchema = {
       selector: { boolean: {} },
       default: true,
     },
+    stackChildrenList(),
   ],
 };
