@@ -1,8 +1,16 @@
 # Card Designer for Home Assistant
 
-A visual drag-and-drop Lovelace card designer — pick a card type, configure it with form fields, see a **real live preview**, then copy the YAML and paste it into any dashboard.
+A visual Lovelace card designer — pick a card type, configure it with form fields, see a **real live preview**, then copy the YAML and paste it into any dashboard.
 
 Installed via HACS as a custom integration. Adds a **Card Designer** entry to the HA sidebar, modelled after the switch_manager UX.
+
+## Screenshots
+
+![Card Designer panel overview — card list with Stock, Mushroom and Custom categories](docs/screenshots/card-designer-overview.jpg)
+
+![Tile card configured with the Sun entity — live preview and clean YAML output side by side](docs/screenshots/card-designer-tile-preview.jpg)
+
+![Entity picker searching live HA entities](docs/screenshots/entity-picker-search.jpg)
 
 ## Supported Cards (v0.1)
 
