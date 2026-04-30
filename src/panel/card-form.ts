@@ -4,6 +4,7 @@ import type { CardSchema, FormSchema, HaFormSchema, HaFormSection, HcdSubFormLis
 import { isHaFormField } from "../core/schema";
 import type { HomeAssistant } from "custom-card-helpers";
 import "./sub-form-list";
+import "./cards-list-widget";
 
 type Block =
   | { kind: "ha"; schema: (HaFormSchema | HaFormSection)[] }
@@ -114,7 +115,12 @@ export class HcdCardForm extends LitElement {
                   .value=${(this.data[block.node.name] as Record<string, unknown>[] | undefined) ?? []}
                   @value-changed=${this._handleValueChanged}
                 ></hcd-sub-form-list>`
-              : html`<!-- ${block.node.name} cards widget coming in step 7 -->`
+              : html`<hcd-cards-list-widget
+                  .hass=${this.hass}
+                  .node=${block.node as HcdCardList}
+                  .value=${(this.data[block.node.name] as Record<string, unknown>[] | undefined) ?? []}
+                  @value-changed=${this._handleValueChanged}
+                ></hcd-cards-list-widget>`
         )}
       </div>
     `;
