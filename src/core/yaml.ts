@@ -35,6 +35,7 @@ function stripDefaults(
   for (const [k, v] of Object.entries(config)) {
     if (v === undefined || v === null) continue;
     if (v === defaults[k]) continue;
+    if (Array.isArray(v) && v.length === 0 && Array.isArray(defaults[k]) && (defaults[k] as unknown[]).length === 0) continue;
     if (Array.isArray(v)) {
       if (k === "entities") {
         // Entity rows: clean empty string fields (except entity itself)
