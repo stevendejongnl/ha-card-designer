@@ -1,0 +1,12 @@
+{
+  "domain": "ha_card_designer",
+  "name": "Card Designer",
+  "codeowners": ["@stevendejongnl"],
+  "config_flow": true,
+  "dependencies": ["panel_custom", "websocket_api", "http", "frontend"],
+  "documentation": "https://github.com/stevendejongnl/ha-card-designer",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/stevendejongnl/ha-card-designer/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Card Designer",
+  "render_readme": true,
+  "content_in_root": false,
+  "domains": ["lovelace"]
+}
