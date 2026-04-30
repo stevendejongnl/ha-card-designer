@@ -6,3 +6,5 @@ dist/
 .playwright-mcp/
 .ha-test-ip
 .worktrees/
+*.jpg
+*.png
