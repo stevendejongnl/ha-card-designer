@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import type { CardSchema, FormSchema, HaFormSchema, HaFormSection, HcdSubFormList, HcdCardList } from "../core/schema";
 import { isHaFormField } from "../core/schema";
 import type { HomeAssistant } from "custom-card-helpers";
+import "./sub-form-list";
 
 type Block =
   | { kind: "ha"; schema: (HaFormSchema | HaFormSection)[] }
@@ -106,7 +107,14 @@ export class HcdCardForm extends LitElement {
                 .computeLabel=${(s: { label?: string; name: string }) => s.label ?? s.name}
                 @value-changed=${this._handleValueChanged}
               ></ha-form>`
-            : html`<!-- ${block.node.name} widget: coming in step 5/7 -->`
+            : block.node.type === "hcd-sub-form-list"
+              ? html`<hcd-sub-form-list
+                  .hass=${this.hass}
+                  .node=${block.node as HcdSubFormList}
+                  .value=${(this.data[block.node.name] as Record<string, unknown>[] | undefined) ?? []}
+                  @value-changed=${this._handleValueChanged}
+                ></hcd-sub-form-list>`
+              : html`<!-- ${block.node.name} cards widget coming in step 7 -->`
         )}
       </div>
     `;

@@ -1,5 +1,6 @@
 import type { CardSchema } from "../core/schema";
 import { textSelector, booleanSelector, numberSelector, themeSelector } from "../core/selectors";
+import { entityRowList } from "../core/widgets";
 
 export const glanceCard: CardSchema = {
   id: "glance",
@@ -17,8 +18,9 @@ export const glanceCard: CardSchema = {
     show_state: true,
     columns: 5,
   },
-  yamlOrder: ["title", "entities", "columns", "show_name", "show_icon", "show_state"],
+  yamlOrder: ["entities", "title", "columns", "show_name", "show_icon", "show_state"],
   form: () => [
+    entityRowList(),
     textSelector("title", "Title"),
     numberSelector("columns", "Columns", { min: 1, max: 10 }),
     booleanSelector("show_name", "Show names", true),
