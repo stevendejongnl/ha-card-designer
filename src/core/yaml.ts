@@ -35,12 +35,18 @@ function stripDefaults(
   return result;
 }
 
+const ALWAYS_INCLUDE = ["type", "card_type"];
+
 export function configToYaml(
   config: Record<string, unknown>,
   defaults: Record<string, unknown>,
   yamlOrder: string[] = []
 ): string {
   const stripped = stripDefaults(config, defaults);
+  // Always keep card type fields even if they match the default
+  for (const key of ALWAYS_INCLUDE) {
+    if (key in config && !(key in stripped)) stripped[key] = config[key];
+  }
   const ordered = reorderKeys(stripped, [
     "type",
     "entity",
