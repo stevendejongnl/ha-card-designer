@@ -1,5 +1,5 @@
 import * as jsYaml from "js-yaml";
-import { getCardSchemaByType } from "./registry";
+import { ALL_CARDS, getCardSchemaByType } from "./registry";
 
 function reorderKeys(
   obj: Record<string, unknown>,
@@ -123,4 +123,40 @@ export function configToYaml(
     quotingType: '"',
     forceQuotes: false,
   });
+}
+
+export interface ParseResult {
+  ok: true;
+  type: string;
+  config: Record<string, unknown>;
+}
+
+export interface ParseError {
+  ok: false;
+  error: string;
+}
+
+export function parseYamlToConfig(text: string): ParseResult | ParseError {
+  let raw: unknown;
+  try {
+    raw = jsYaml.load(text);
+  } catch (e) {
+    return { ok: false, error: `YAML parse error: ${(e as Error).message}` };
+  }
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return { ok: false, error: "Expected a YAML mapping at the top level." };
+  }
+  const obj = raw as Record<string, unknown>;
+  const type = obj.type;
+  if (typeof type !== "string" || !type) {
+    return { ok: false, error: "Missing required field: type" };
+  }
+  const schema = getCardSchemaByType(type);
+  if (!schema) {
+    const supported = ALL_CARDS.map((c) => c.type).join(", ");
+    return { ok: false, error: `Unsupported card type "${type}". Supported: ${supported}` };
+  }
+  // Merge schema defaults underneath parsed config so missing keys work in form
+  const config = { ...schema.defaults, ...obj };
+  return { ok: true, type, config };
 }

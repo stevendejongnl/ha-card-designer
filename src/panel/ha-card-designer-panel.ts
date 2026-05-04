@@ -2,13 +2,15 @@ import { LitElement, html, css } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import type { HomeAssistant } from "custom-card-helpers";
 import type { CardSchema } from "../core/schema";
-import { getCardSchema } from "../core/registry";
-import { configToYaml } from "../core/yaml";
+import { ALL_CARDS, getCardSchema } from "../core/registry";
+import { configToYaml, parseYamlToConfig } from "../core/yaml";
 
 import "./card-list";
 import "./card-form";
 import "./card-preview";
 import "./yaml-output";
+import "./import-dialog";
+import type { HcdImportDialog } from "./import-dialog";
 
 @customElement("ha-card-designer-panel")
 export class HaCardDesignerPanel extends LitElement {
@@ -20,6 +22,7 @@ export class HaCardDesignerPanel extends LitElement {
   @state() private _activeSchema?: CardSchema;
   @state() private _config: Record<string, unknown> = {};
   @state() private _yaml = "";
+  @state() private _yamlParseError = "";
 
   // HA lazy-loads stock hui-* cards only when a Lovelace dashboard renders them.
   // Pre-register them on the first hass assignment so installed() checks work immediately.
@@ -60,6 +63,7 @@ export class HaCardDesignerPanel extends LitElement {
     this._activeCardId = id;
     this._activeSchema = schema;
     this._config = { ...schema.defaults };
+    this._yamlParseError = "";
     this._updateYaml();
   }
 
@@ -75,6 +79,44 @@ export class HaCardDesignerPanel extends LitElement {
       this._activeSchema.defaults,
       this._activeSchema.yamlOrder
     );
+  }
+
+  /** Shared import logic used by both the dialog and the bidirectional YAML pane. */
+  private _loadYaml(text: string): { ok: boolean; error?: string } {
+    const result = parseYamlToConfig(text);
+    if (!result.ok) return result;
+
+    const cardEntry = ALL_CARDS.find((c) => c.type === result.type);
+    if (!cardEntry) return { ok: false, error: `No schema found for type "${result.type}"` };
+
+    this._activeCardId = cardEntry.id;
+    this._activeSchema = cardEntry;
+    this._config = result.config;
+    this._yamlParseError = "";
+    this._updateYaml();
+    return { ok: true };
+  }
+
+  private _onYamlEdited(e: CustomEvent<string>) {
+    const result = this._loadYaml(e.detail);
+    if (!result.ok) {
+      this._yamlParseError = result.error ?? "Parse error";
+    }
+  }
+
+  private _onYamlImported(e: CustomEvent<string>) {
+    const result = this._loadYaml(e.detail);
+    const dialog = this.shadowRoot?.querySelector("hcd-import-dialog") as HcdImportDialog | null;
+    if (!result.ok) {
+      dialog?.setError(result.error ?? "Import failed");
+    } else {
+      dialog?.closeDialog();
+    }
+  }
+
+  private _openImport() {
+    const dialog = this.shadowRoot?.querySelector("hcd-import-dialog") as HcdImportDialog | null;
+    dialog?.open();
   }
 
   static styles = css`
@@ -94,7 +136,11 @@ export class HaCardDesignerPanel extends LitElement {
       box-shadow: var(--shadow-elevation-4dp_-_box-shadow);
     }
     .topbar ha-icon { --mdc-icon-size: 24px; }
-    .topbar h1 { margin: 0; font-size: 20px; font-weight: 400; }
+    .topbar h1 { margin: 0; font-size: 20px; font-weight: 400; flex: 1; }
+    .topbar mwc-button {
+      --mdc-theme-primary: var(--app-header-text-color, white);
+      --mdc-button-outline-color: var(--app-header-text-color, white);
+    }
     .main {
       flex: 1;
       display: flex;
@@ -134,6 +180,9 @@ export class HaCardDesignerPanel extends LitElement {
       <div class="topbar">
         <ha-icon icon="mdi:palette"></ha-icon>
         <h1>Card Designer</h1>
+        <mwc-button outlined @click=${this._openImport}>
+          Import YAML
+        </mwc-button>
       </div>
       <div class="main">
         <div class="sidebar">
@@ -157,9 +206,16 @@ export class HaCardDesignerPanel extends LitElement {
               .config=${this._activeCardId ? this._config : undefined}
             ></hcd-card-preview>
           </div>
-          <hcd-yaml-output .yaml=${this._yaml}></hcd-yaml-output>
+          <hcd-yaml-output
+            .yaml=${this._yaml}
+            .parseError=${this._yamlParseError}
+            @yaml-edited=${this._onYamlEdited}
+          ></hcd-yaml-output>
         </div>
       </div>
+      <hcd-import-dialog
+        @yaml-imported=${this._onYamlImported}
+      ></hcd-import-dialog>
     `;
   }
 }
