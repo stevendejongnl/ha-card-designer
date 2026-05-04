@@ -6,11 +6,11 @@ Installed via HACS as a custom integration. Adds a **Card Designer** entry to th
 
 ## Screenshots
 
-![Card Designer panel overview — card list with Stock, Mushroom and Custom categories](docs/screenshots/card-designer-overview.jpg)
+![Card Designer — Markdown card with live preview and YAML output](docs/screenshots/readme-overview.jpg)
 
-![Tile card configured with the Sun entity — live preview and clean YAML output side by side](docs/screenshots/card-designer-tile-preview.jpg)
+![Dark mode preview — card renders with dark theme CSS variables](docs/screenshots/readme-dark-mode.jpg)
 
-![Entity picker searching live HA entities](docs/screenshots/entity-picker-search.jpg)
+![Mushroom Entity card form — entity picker, icon selector, layout options](docs/screenshots/readme-mushroom.jpg)
 
 ## Supported Cards (v0.1)
 

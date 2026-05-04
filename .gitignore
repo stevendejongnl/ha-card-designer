@@ -8,3 +8,5 @@ dist/
 .worktrees/
 *.jpg
 *.png
+!docs/screenshots/*.jpg
+!docs/screenshots/*.png
