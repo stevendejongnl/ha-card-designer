@@ -74,9 +74,10 @@ export class HcdImportDialog extends LitElement {
       box-shadow: var(--shadow-elevation-24dp_-_box-shadow, 0 11px 15px rgba(0,0,0,.2));
       width: 560px;
       max-width: 95vw;
+      max-height: 90vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
     }
     .dialog-header {
       padding: 20px 24px 12px;
@@ -94,13 +95,14 @@ export class HcdImportDialog extends LitElement {
       display: flex;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
     }
     label.file-label {
       cursor: pointer;
     }
     textarea {
       width: 100%;
-      height: 240px;
+      height: clamp(160px, 40vh, 240px);
       resize: vertical;
       font-family: "Roboto Mono", "Courier New", monospace;
       font-size: 12px;

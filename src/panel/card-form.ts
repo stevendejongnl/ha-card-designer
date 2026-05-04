@@ -32,6 +32,7 @@ export class HcdCardForm extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ attribute: false }) schema?: CardSchema;
   @property({ attribute: false }) data: Record<string, unknown> = {};
+  @property({ type: Boolean, reflect: true }) narrow = false;
 
   private _handleValueChanged(e: CustomEvent) {
     this.data = { ...this.data, ...e.detail.value };
@@ -50,6 +51,7 @@ export class HcdCardForm extends LitElement {
       flex-direction: column;
       height: 100%;
       overflow: hidden;
+      min-width: 0;
     }
     .header {
       padding: 16px;

@@ -5,6 +5,7 @@ import { customElement, property, state } from "lit/decorators.js";
 export class HcdYamlOutput extends LitElement {
   @property({ type: String }) yaml = "";
   @property({ type: String }) parseError = "";
+  @property({ type: Boolean, reflect: true }) narrow = false;
   @state() private _copied = false;
   @state() private _localText = "";
   @state() private _userEditing = false;
@@ -64,6 +65,10 @@ export class HcdYamlOutput extends LitElement {
       border-top: 1px solid var(--divider-color);
       height: 220px;
     }
+    :host([narrow]) {
+      height: 100%;
+      border-top: none;
+    }
     .toolbar {
       display: flex;
       align-items: center;
@@ -97,6 +102,10 @@ export class HcdYamlOutput extends LitElement {
       color: var(--primary-text-color);
       line-height: 1.5;
     }
+    /* Prevent iOS Safari from zooming when focusing the textarea */
+    :host([narrow]) textarea {
+      font-size: 16px;
+    }
     .parse-error {
       padding: 4px 16px;
       background: var(--error-color, #b00020);
@@ -118,7 +127,7 @@ export class HcdYamlOutput extends LitElement {
         <mwc-button
           ?disabled=${!displayText}
           @click=${this._copy}
-          dense
+          ?dense=${!this.narrow}
         >
           <ha-icon icon=${this._copied ? "mdi:check" : "mdi:content-copy"}></ha-icon>
           ${this._copied ? "Copied!" : "Copy YAML"}

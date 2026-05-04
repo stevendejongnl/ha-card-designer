@@ -8,6 +8,7 @@ import type { HomeAssistant } from "custom-card-helpers";
 export class HcdCardList extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ type: String }) activeCardId?: string;
+  @property({ type: Boolean, reflect: true }) narrow = false;
   @state() private _search = "";
 
   private _categories = ["stock", "mushroom", "custom"] as const;
@@ -60,6 +61,10 @@ export class HcdCardList extends LitElement {
       border-radius: 8px;
       margin: 0 8px;
       transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    :host([narrow]) .card-item {
+      padding: 12px 16px;
     }
     .card-item:hover {
       background: var(--secondary-background-color);
@@ -78,6 +83,9 @@ export class HcdCardList extends LitElement {
     .label {
       flex: 1;
       font-size: 14px;
+    }
+    :host([narrow]) .label {
+      font-size: 15px;
     }
     .not-installed {
       font-size: 10px;

@@ -9,6 +9,7 @@ export class HcdCardPreview extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ attribute: false }) schema?: CardSchema;
   @property({ attribute: false }) config?: Record<string, unknown>;
+  @property({ type: Boolean, reflect: true }) narrow = false;
   @state() private _error?: string;
   @state() private _loading = false;
   @state() private _darkMode = false;
@@ -120,9 +121,21 @@ export class HcdCardPreview extends LitElement {
       color: var(--secondary-text-color);
       white-space: nowrap;
       transition: background 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
     }
     .toolbar-btn ha-icon {
       --mdc-icon-size: 14px;
+    }
+    :host([narrow]) .toolbar-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+      min-height: 40px;
+    }
+    :host([narrow]) .toolbar-btn ha-icon {
+      --mdc-icon-size: 18px;
+    }
+    :host([narrow]) .viewport-toggle {
+      display: none;
     }
     .toolbar-btn:hover {
       background: var(--secondary-background-color);
@@ -245,7 +258,7 @@ export class HcdCardPreview extends LitElement {
             Dark
           </button>
         </div>
-        <div class="toolbar-group">
+        <div class="toolbar-group viewport-toggle">
           <button
             class="toolbar-btn ${!this._mobileView ? "active" : ""}"
             title="Desktop viewport"
