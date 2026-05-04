@@ -1,76 +1,99 @@
 # Card Designer for Home Assistant
 
-A visual Lovelace card designer — pick a card type, configure it with form fields, see a **real live preview**, then copy the YAML and paste it into any dashboard.
+A visual Lovelace card designer that lives in your Home Assistant sidebar. Pick a card type, fill in a form, see a **real live preview**, then copy the YAML into any dashboard.
 
-Installed via HACS as a custom integration. Adds a **Card Designer** entry to the HA sidebar, modelled after the switch_manager UX.
+No more trial-and-error YAML editing — what you configure is what you get.
 
-## Screenshots
+![Card Designer — Tile card with live preview and YAML output](docs/screenshots/overview.jpg)
 
-![Card Designer — Markdown card with live preview and YAML output](docs/screenshots/readme-overview.jpg)
+## Features
 
-![Dark mode preview — card renders with dark theme CSS variables](docs/screenshots/readme-dark-mode.jpg)
+- **Live preview** — renders the actual HA card element using `createThing()`, exactly as it appears on your dashboard
+- **Clean YAML output** — strips defaulted fields, keeps keys in a logical order, ready to paste
+- **Light / Dark preview** — toggle dark mode on the preview pane without affecting the rest of HA
+- **Desktop / Mobile viewport** — constrain the preview to 375px to check how the card looks on mobile
+- **Stock, Mushroom & custom cards** — custom cards show a HACS install hint when not present
+- **Stack editors** — Vertical Stack, Horizontal Stack, and Grid have an inline child-card editor with drag-to-reorder
 
-![Mushroom Entity card form — entity picker, icon selector, layout options](docs/screenshots/readme-mushroom.jpg)
+![Dark mode preview](docs/screenshots/dark-mode.jpg)
 
-## Supported Cards (v0.1)
+## Supported Cards
 
 | Category | Cards |
 |---|---|
 | **Stock** | Tile, Entities, Vertical Stack, Horizontal Stack, Grid, Button, Gauge, Glance, Markdown |
 | **Mushroom** | Entity, Template, Chips |
-| **Custom** | Mini Graph Card, Bubble Card, Button Card (non-template subset) |
+| **Custom** | Mini Graph Card, Bubble Card, Button Card |
 
-Custom cards are greyed out when not installed — click them to see the HACS install hint.
+Custom cards are greyed out and show "Not installed" when their JS bundle is not loaded — clicking them shows a HACS install hint.
 
 ## Installation
 
-### HACS (recommended, production)
+### HACS (recommended)
 
-1. Add this repo to HACS custom repositories:  
-   `https://github.com/stevendejongnl/ha-card-designer`  
-   Category: **Integration**
-2. Install **Card Designer** from HACS
-3. Restart Home Assistant
+1. Open HACS → **Integrations** → ⋮ → **Custom repositories**
+2. Add `https://github.com/stevendejongnl/ha-card-designer` as category **Integration**
+3. Install **Card Designer** and restart Home Assistant
 4. Go to **Settings → Devices & Services → Add Integration** and search for **Card Designer**
-5. The **Card Designer** panel appears in the sidebar
+5. **Card Designer** appears in the HA sidebar
 
-### SCP (testing / development)
+### Manual (development)
 
 ```bash
-# Build the frontend
-cd /path/to/ha-card-designer
+git clone https://github.com/stevendejongnl/ha-card-designer
+cd ha-card-designer
+npm install
 npm run build
-
-# Deploy to HA test instance
-scp -r custom_components/ha_card_designer/ home-assistant:/config/custom_components/
-
-# Restart HA (or use the MCP tool)
-ssh home-assistant 'bash -l -c "ha core restart"'
+# Copy custom_components/ha_card_designer/ to your HA config directory
+# then restart HA and add the integration
 ```
+
+## Usage
+
+1. Open **Card Designer** from the sidebar
+2. Search or scroll to find a card type — Stock, Mushroom, or Custom
+3. Fill in the form fields; the preview updates live
+4. Use the **Light / Dark** and **Desktop / Mobile** toggles to check how the card looks
+5. Click **Copy YAML** and paste into your dashboard card editor
 
 ## Development
 
 ```bash
 npm install
-npm run build      # production bundle
-npm run dev        # watch mode (rebuilds on save)
-npm run typecheck  # TypeScript type checking
+npm run build       # production bundle → custom_components/.../assets/ha-card-designer-panel.js
+npm run dev         # watch mode (rebuilds on save)
+npm run typecheck   # tsc --noEmit
+```
+
+Deploy to a test HA instance:
+
+```bash
+scripts/deploy-test.sh   # build → deploy via SSH → restart HA
 ```
 
 ### Adding a card schema
 
-See [`docs/adding-a-card.md`](docs/adding-a-card.md) for the full guide.
+See [`docs/adding-a-card.md`](docs/adding-a-card.md) for the full guide. Adding a card is one file in `src/cards/` plus one line in `src/core/registry.ts`.
 
 ## Architecture
 
-- **`custom_components/ha_card_designer/`** — Python integration. Registers a HA panel (`embed_iframe: false`) and serves the built JS bundle.
-- **`src/core/schema.ts`** — `CardSchema` interface. Every card is one exported object.
-- **`src/core/selectors.ts`** — Shorthand helpers for ha-form selector types.
-- **`src/core/yaml.ts`** — Config → clean YAML (strips defaults, applies key ordering).
-- **`src/core/registry.ts`** — Master list of all supported cards.
-- **`src/panel/`** — Lit components: card list rail, ha-form editor, real preview (`createThing` + `hass`), YAML output.
-- **`src/cards/`** — One file per card schema.
+```
+src/
+  cards/          one file per card schema (id, form, defaults, yamlOrder)
+  core/
+    schema.ts     CardSchema + FormSchema types
+    registry.ts   ALL_CARDS master list
+    yaml.ts       config → clean YAML (strips defaults, orders keys)
+    selectors.ts  ha-form selector shorthand helpers
+    widgets.ts    reusable form widgets (entity row list, etc.)
+  panel/
+    ha-card-designer-panel.ts   root 4-pane component
+    cards-list-widget.ts        card list rail with search
+    card-preview.ts             live preview (createThing + hass)
+    card-form.ts                ha-form wrapper
+    yaml-output.ts              YAML output with copy button
 
-## Why `embed_iframe: false`?
+custom_components/ha_card_designer/   Python integration (panel + static asset serving)
+```
 
-The panel runs directly in HA's document (not an iframe) so our preview component can call `createThing()` and inject `hass` — the same way Lovelace dashboards render cards. This gives pixel-perfect preview without any additional rendering infrastructure.
+The panel runs in HA's main document (`embed_iframe: false`) so the preview can call `createThing()` and inject `hass` — the same mechanism Lovelace uses to render cards. This gives a pixel-perfect preview with no extra infrastructure.
