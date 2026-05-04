@@ -106,6 +106,7 @@ export class HcdCardsListWidget extends LitElement {
   }
 
   private _onRowRemove(e: CustomEvent<{ index: number }>) {
+    if (this._drawerEditIndex === e.detail.index) this._closeDrawer();
     this._emit(this.value.filter((_, i) => i !== e.detail.index));
   }
 

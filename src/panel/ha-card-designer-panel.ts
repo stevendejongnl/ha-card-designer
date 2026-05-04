@@ -21,6 +21,38 @@ export class HaCardDesignerPanel extends LitElement {
   @state() private _config: Record<string, unknown> = {};
   @state() private _yaml = "";
 
+  // HA lazy-loads stock hui-* cards only when a Lovelace dashboard renders them.
+  // Pre-register them on the first hass assignment so installed() checks work immediately.
+  private _stockTypes = [
+    "vertical-stack", "horizontal-stack", "gauge", "markdown",
+    "glance", "entities", "grid",
+  ];
+  private _stockCardsRegistered = false;
+
+  override updated(changedProps: Map<string, unknown>) {
+    super.updated(changedProps);
+    if (!this._stockCardsRegistered && changedProps.has("hass") && this.hass) {
+      this._stockCardsRegistered = true;
+      for (const type of this._stockTypes) {
+        if (!customElements.get(`hui-${type}-card`)) {
+          const el = document.createElement("hui-card") as HTMLElement & {
+            config?: Record<string, unknown>;
+            hass?: HomeAssistant;
+          };
+          el.style.display = "none";
+          el.config = { type };
+          el.hass = this.hass;
+          document.body.appendChild(el);
+        }
+      }
+      // Re-render card list after elements have had time to register
+      setTimeout(() => {
+        const list = this.shadowRoot?.querySelector("hcd-card-list") as LitElement | null;
+        list?.requestUpdate();
+      }, 500);
+    }
+  }
+
   private _onCardSelected(e: CustomEvent<string>) {
     const id = e.detail;
     const schema = getCardSchema(id);
