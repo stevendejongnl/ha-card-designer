@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/stevendejongnl/ha-card-designer/compare/v0.3.0...v0.4.0) (2026-05-04)
+
+
+### Features
+
+* **mobile:** add bottom-tab responsive layout for iPhone ([7d54bba](https://github.com/stevendejongnl/ha-card-designer/commit/7d54bba9d65446729edefbc53948a857a57beab3))
+
 # [0.3.0](https://github.com/stevendejongnl/ha-card-designer/compare/v0.2.0...v0.3.0) (2026-05-04)
 
 
