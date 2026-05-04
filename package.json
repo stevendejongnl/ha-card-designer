@@ -1,6 +1,6 @@
 {
   "name": "ha-card-designer",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Visual Lovelace card designer for Home Assistant",
   "type": "module",
   "scripts": {
