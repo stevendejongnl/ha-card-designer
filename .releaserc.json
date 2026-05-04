@@ -1,0 +1,30 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
+    ["@semantic-release/npm", { "npmPublish": false }],
+    ["@semantic-release/exec", {
+      "prepareCmd": "sed -i 's/VERSION = \".*\"/VERSION = \"${nextRelease.version}\"/' custom_components/ha_card_designer/const.py && npm run build"
+    }],
+    ["@semantic-release/git", {
+      "assets": [
+        "CHANGELOG.md",
+        "package.json",
+        "package-lock.json",
+        "custom_components/ha_card_designer/const.py",
+        "custom_components/ha_card_designer/assets/ha-card-designer-panel.js"
+      ],
+      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }],
+    ["@semantic-release/github", {
+      "assets": [
+        {
+          "path": "custom_components/ha_card_designer/assets/ha-card-designer-panel.js",
+          "label": "ha-card-designer-panel.js"
+        }
+      ]
+    }]
+  ]
+}
