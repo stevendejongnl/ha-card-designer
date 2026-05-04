@@ -1,11 +1,11 @@
 import type { CardSchema } from "../core/schema";
 import {
-  entitySelector,
   textSelector,
   numberSelector,
   booleanSelector,
   selectSelector,
 } from "../core/selectors";
+import { entityRowList } from "../core/widgets";
 
 const LINE_COLOR_OPTIONS = [
   { value: "var(--accent-color)", label: "Accent" },
@@ -31,6 +31,7 @@ export const miniGraphCard: CardSchema = {
   installed: () => !!customElements.get("mini-graph-card"),
   defaults: {
     type: "custom:mini-graph-card",
+    entities: [],
     hours_to_show: 24,
     points_per_hour: 0.5,
     line_width: 5,
@@ -46,7 +47,7 @@ export const miniGraphCard: CardSchema = {
   },
   yamlOrder: ["name", "icon", "unit", "entities", "hours_to_show", "graph_type"],
   form: (_data) => [
-    entitySelector("entities", "Entity", { required: true }),
+    entityRowList(),
     textSelector("name", "Name"),
     textSelector("unit", "Unit"),
     selectSelector("graph_type", "Graph type", GRAPH_TYPE_OPTIONS),
