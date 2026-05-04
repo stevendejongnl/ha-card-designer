@@ -3,19 +3,18 @@ import { customElement, state } from "lit/decorators.js";
 
 @customElement("hcd-import-dialog")
 export class HcdImportDialog extends LitElement {
+  @state() private _open = false;
   @state() private _text = "";
   @state() private _error = "";
 
   open() {
     this._text = "";
     this._error = "";
-    const dialog = this.shadowRoot?.querySelector("ha-dialog") as HTMLElement & { show?: () => void };
-    dialog?.show?.();
+    this._open = true;
   }
 
   private _close() {
-    const dialog = this.shadowRoot?.querySelector("ha-dialog") as HTMLElement & { close?: () => void };
-    dialog?.close?.();
+    this._open = false;
   }
 
   private async _pasteFromClipboard() {
@@ -60,10 +59,33 @@ export class HcdImportDialog extends LitElement {
   }
 
   static styles = css`
-    ha-dialog {
-      --mdc-dialog-min-width: 560px;
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.5);
     }
-    .content {
+    .dialog {
+      background: var(--card-background-color, #fff);
+      border-radius: 8px;
+      box-shadow: var(--shadow-elevation-24dp_-_box-shadow, 0 11px 15px rgba(0,0,0,.2));
+      width: 560px;
+      max-width: 95vw;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .dialog-header {
+      padding: 20px 24px 12px;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--primary-text-color);
+    }
+    .dialog-content {
+      padding: 0 24px 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -85,7 +107,7 @@ export class HcdImportDialog extends LitElement {
       padding: 10px;
       border: 1px solid var(--divider-color);
       border-radius: 4px;
-      background: var(--card-background-color, white);
+      background: var(--primary-background-color, #fafafa);
       color: var(--primary-text-color);
       line-height: 1.5;
       box-sizing: border-box;
@@ -94,39 +116,52 @@ export class HcdImportDialog extends LitElement {
       color: var(--error-color, #b00020);
       font-size: 13px;
     }
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 8px 16px 16px;
+      border-top: 1px solid var(--divider-color);
+    }
     input[type="file"] {
       display: none;
     }
   `;
 
   render() {
+    if (!this._open) return html``;
     return html`
-      <ha-dialog heading="Import YAML" @closed=${this._close}>
-        <div class="content">
-          <div class="actions-row">
-            <mwc-button outlined @click=${this._pasteFromClipboard}>
-              Paste from clipboard
-            </mwc-button>
-            <label class="file-label">
-              <mwc-button outlined>Load file</mwc-button>
-              <input
-                type="file"
-                accept=".yaml,.yml,.txt,.json"
-                @change=${this._onFileLoad}
-              />
-            </label>
+      <div class="overlay" @click=${(e: MouseEvent) => { if (e.target === e.currentTarget) this._close(); }}>
+        <div class="dialog">
+          <div class="dialog-header">Import YAML</div>
+          <div class="dialog-content">
+            <div class="actions-row">
+              <mwc-button outlined @click=${this._pasteFromClipboard}>
+                Paste from clipboard
+              </mwc-button>
+              <label class="file-label">
+                <mwc-button outlined>Load file</mwc-button>
+                <input
+                  type="file"
+                  accept=".yaml,.yml,.txt,.json"
+                  @change=${this._onFileLoad}
+                />
+              </label>
+            </div>
+            <textarea
+              .value=${this._text}
+              placeholder="Paste card YAML here…"
+              spellcheck="false"
+              @input=${(e: InputEvent) => { this._text = (e.target as HTMLTextAreaElement).value; this._error = ""; }}
+            ></textarea>
+            ${this._error ? html`<div class="error">${this._error}</div>` : ""}
           </div>
-          <textarea
-            .value=${this._text}
-            placeholder="Paste card YAML here…"
-            spellcheck="false"
-            @input=${(e: InputEvent) => { this._text = (e.target as HTMLTextAreaElement).value; this._error = ""; }}
-          ></textarea>
-          ${this._error ? html`<div class="error">${this._error}</div>` : ""}
+          <div class="dialog-actions">
+            <mwc-button @click=${this._close}>Cancel</mwc-button>
+            <mwc-button unelevated @click=${this._onImport}>Import</mwc-button>
+          </div>
         </div>
-        <mwc-button slot="secondaryAction" @click=${this._close}>Cancel</mwc-button>
-        <mwc-button slot="primaryAction" @click=${this._onImport}>Import</mwc-button>
-      </ha-dialog>
+      </div>
     `;
   }
 }
