@@ -1,3 +1,15 @@
+# [0.3.0](https://github.com/stevendejongnl/ha-card-designer/compare/v0.2.0...v0.3.0) (2026-05-04)
+
+
+### Bug Fixes
+
+* switch import dialog to custom overlay (ha-dialog caching issue) ([1296592](https://github.com/stevendejongnl/ha-card-designer/commit/129659242225ef31fa0e83af20f860938da7b775))
+
+
+### Features
+
+* add YAML import — dialog, clipboard paste, and bidirectional YAML pane ([1caf4ae](https://github.com/stevendejongnl/ha-card-designer/commit/1caf4ae786a55196f6e4c7faab7183dd948ec617))
+
 # [0.2.0](https://github.com/stevendejongnl/ha-card-designer/compare/v0.1.6...v0.2.0) (2026-05-04)
 
 
